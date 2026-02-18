@@ -452,80 +452,104 @@
         </div>
     </section>
 
-    <!-- Live Demo Section -->
-    <section class="live-demo">
+    <!-- Live Demo Dashboard -->
+    <section class="live-demo" id="demo">
         <div class="container">
             <h2>Try a Live Dashboard Demo</h2>
-            <p>Interact with a sample dashboard - this could be yours!</p>
+            <p>Interact with this sample dashboard - this could be yours!</p>
             
             <div class="demo-dashboard">
-                <div class="demo-sidebar">
-                    <div class="demo-filter">
-                        <label>Time Period:</label>
-                        <select id="demoPeriod">
-                            <option value="7">Last 7 Days</option>
-                            <option value="30" selected>Last 30 Days</option>
-                            <option value="90">Last Quarter</option>
-                        </select>
+                <div class="demo-header">
+                    <div class="demo-title">
+                        📊 Sales Analytics Dashboard
                     </div>
-                    <div class="demo-filter">
-                        <label>Region:</label>
-                        <select id="demoRegion">
-                            <option value="all" selected>All Regions</option>
-                            <option value="north">North</option>
-                            <option value="south">South</option>
-                        </select>
+                    <div class="demo-status">
+                        <span class="status-dot"></span>
+                        Live Data
                     </div>
                 </div>
                 
-                <div class="demo-charts">
-                    <div class="demo-kpi-grid">
-                        <div class="demo-kpi">
-                            <span class="kpi-label">Revenue</span>
-                            <span class="kpi-value" id="demoRevenue">$124.5K</span>
-                            <span class="kpi-change positive">↑ 12.3%</span>
+                <div class="demo-body">
+                    <div class="demo-sidebar">
+                        <div class="demo-filter">
+                            <label>Time Period</label>
+                            <select id="demoPeriod">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="90">Last Quarter</option>
+                                <option value="365">Last Year</option>
+                            </select>
                         </div>
-                        <div class="demo-kpi">
-                            <span class="kpi-label">Orders</span>
-                            <span class="kpi-value" id="demoOrders">1,429</span>
-                            <span class="kpi-change positive">↑ 8.1%</span>
+                        
+                        <div class="demo-filter">
+                            <label>Region</label>
+                            <select id="demoRegion">
+                                <option value="all" selected>All Regions</option>
+                                <option value="north">North America</option>
+                                <option value="europe">Europe</option>
+                                <option value="asia">Asia Pacific</option>
+                            </select>
                         </div>
-                        <div class="demo-kpi">
-                            <span class="kpi-label">Avg Order</span>
-                            <span class="kpi-value" id="demoAov">$87.12</span>
-                            <span class="kpi-change negative">↓ 2.4%</span>
+                        
+                        <div class="demo-filter">
+                            <label>Product Category</label>
+                            <select id="demoCategory">
+                                <option value="all" selected>All Categories</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="home">Home & Garden</option>
+                            </select>
                         </div>
                     </div>
                     
-                    <div class="demo-chart-area">
-                        <div class="chart-mockup" id="demoChart">
-                            <!-- Simple CSS/SVG chart representation -->
-                            <div class="mock-bars">
-                                <div class="mock-bar" style="height: 40%"></div>
-                                <div class="mock-bar" style="height: 65%"></div>
-                                <div class="mock-bar" style="height: 45%"></div>
-                                <div class="mock-bar" style="height: 80%"></div>
-                                <div class="mock-bar" style="height: 55%"></div>
-                                <div class="mock-bar highlight" style="height: 90%"></div>
+                    <div class="demo-content">
+                        <div class="demo-kpi-grid">
+                            <div class="demo-kpi">
+                                <span class="kpi-label">Total Revenue</span>
+                                <span class="kpi-value" id="demoRevenue">$124.5K</span>
+                                <span class="kpi-change positive">↑ 12.3%</span>
                             </div>
-                            <p class="chart-caption">Revenue Trend (Sample Data)</p>
+                            <div class="demo-kpi">
+                                <span class="kpi-label">Orders</span>
+                                <span class="kpi-value" id="demoOrders">1,429</span>
+                                <span class="kpi-change positive">↑ 8.1%</span>
+                            </div>
+                            <div class="demo-kpi">
+                                <span class="kpi-label">Avg Order Value</span>
+                                <span class="kpi-value" id="demoAov">$87.12</span>
+                                <span class="kpi-change negative">↓ 2.4%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-chart-container">
+                            <div class="chart-title">Revenue Trend</div>
+                            <div class="demo-chart" id="demoChart">
+                                <div class="chart-bar" style="height: 45%" data-value="$45K"></div>
+                                <div class="chart-bar" style="height: 65%" data-value="$68K"></div>
+                                <div class="chart-bar" style="height: 55%" data-value="$52K"></div>
+                                <div class="chart-bar" style="height: 80%" data-value="$89K"></div>
+                                <div class="chart-bar" style="height: 70%" data-value="$75K"></div>
+                                <div class="chart-bar" style="height: 90%" data-value="$124K"></div>
+                                <div class="chart-bar" style="height: 85%" data-value="$108K"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="demo-cta">
                     <p>👆 This is just a preview. Your real dashboard will have:</p>
-                    <ul>
-                        <li>✓ Real-time data from YOUR database</li>
-                        <li>✓ Custom KPIs relevant to YOUR business</li>
-                        <li>✓ Drill-down capabilities</li>
-                        <li>✓ Mobile-responsive design</li>
-                    </ul>
+                    <div class="demo-features">
+                        <span class="demo-feature">Real-time data from YOUR database</span>
+                        <span class="demo-feature">Custom KPIs for YOUR business</span>
+                        <span class="demo-feature">Drill-down capabilities</span>
+                        <span class="demo-feature">Mobile-responsive design</span>
+                    </div>
                     <a href="#contact" class="btn btn-primary">Build My Dashboard</a>
                 </div>
             </div>
         </div>
     </section>
+    
     <!-- Free Audit -->
     <section class="free-audit">
         <div class="container">
@@ -733,6 +757,7 @@
     
 </body>
 </html>
+
 
 
 
