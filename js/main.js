@@ -12,28 +12,178 @@ window.addEventListener('scroll', function() {
 });
 
 // =================================
-// ROI Calculator
+// Live Demo Dashboard Interactivity
 // =================================
 
-document.getElementById('calcForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const hours = parseFloat(document.getElementById('hours').value);
-    const salary = parseFloat(document.getElementById('salary').value);
-    
-    // Calculate: (hours per week * 52 weeks * salary) * 0.9 (90% automation)
-    const yearlySavings = (hours * 52 * salary * 0.9);
-    
-    const resultDiv = document.getElementById('calcResult');
-    const resultAmount = document.getElementById('resultAmount');
-    
-    // Format currency for Indonesian Rupiah
-    resultAmount.textContent = 'Rp ' + yearlySavings.toLocaleString('id-ID');
-    resultDiv.classList.add('show');
-    
-    // Scroll to result smoothly
-    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-});
+(function() {
+    // Demo data configurations
+    const demoData = {
+        '7': {
+            revenue: '$28.3K',
+            orders: '342',
+            aov: '$82.75',
+            changeRevenue: '↑ 5.2%',
+            changeOrders: '↑ 3.1%',
+            changeAov: '↑ 1.8%',
+            bars: [30, 45, 60, 55, 70, 85, 75]
+        },
+        '30': {
+            revenue: '$124.5K',
+            orders: '1,429',
+            aov: '$87.12',
+            changeRevenue: '↑ 12.3%',
+            changeOrders: '↑ 8.1%',
+            changeAov: '↓ 2.4%',
+            bars: [45, 65, 55, 80, 70, 90, 85]
+        },
+        '90': {
+            revenue: '$385.2K',
+            orders: '4,521',
+            aov: '$85.20',
+            changeRevenue: '↑ 18.7%',
+            changeOrders: '↑ 15.3%',
+            changeAov: '↑ 4.2%',
+            bars: [60, 55, 70, 75, 80, 85, 90]
+        },
+        '365': {
+            revenue: '$1.24M',
+            orders: '15,890',
+            aov: '$78.04',
+            changeRevenue: '↑ 32.1%',
+            changeOrders: '↑ 28.9%',
+            changeAov: '↑ 6.7%',
+            bars: [40, 50, 60, 70, 80, 90, 100]
+        }
+    };
+
+    const regionMultipliers = {
+        'all': 1,
+        'north': 0.45,
+        'europe': 0.30,
+        'asia': 0.25
+    };
+
+    const categoryMultipliers = {
+        'all': 1,
+        'electronics': 0.40,
+        'clothing': 0.35,
+        'home': 0.25
+    };
+
+    // Get elements
+    const periodSelect = document.getElementById('demoPeriod');
+    const regionSelect = document.getElementById('demoRegion');
+    const categorySelect = document.getElementById('demoCategory');
+    const revenueEl = document.getElementById('demoRevenue');
+    const ordersEl = document.getElementById('demoOrders');
+    const aovEl = document.getElementById('demoAov');
+    const chartContainer = document.getElementById('demoChart');
+
+    function updateDashboard() {
+        const period = periodSelect.value;
+        const region = regionSelect.value;
+        const category = categorySelect.value;
+        
+        const baseData = demoData[period];
+        const regionMult = regionMultipliers[region];
+        const categoryMult = categoryMultipliers[category];
+        
+        // Calculate adjusted values
+        const adjustedRevenue = calculateValue(baseData.revenue, regionMult * categoryMult);
+        const adjustedOrders = calculateOrders(baseData.orders, regionMult * categoryMult);
+        const adjustedAov = calculateAOV(baseData.aov, regionMult, categoryMult);
+        
+        // Update KPIs with animation
+        animateValue(revenueEl, adjustedRevenue);
+        animateValue(ordersEl, adjustedOrders);
+        animateValue(aovEl, adjustedAov);
+        
+        // Update change indicators
+        updateChangeIndicator(revenueEl, baseData.changeRevenue);
+        updateChangeIndicator(ordersEl, baseData.changeOrders);
+        updateChangeIndicator(aovEl, baseData.changeAov);
+        
+        // Update chart bars
+        updateChart(baseData.bars, regionMult * categoryMult);
+    }
+
+    function calculateValue(valueStr, multiplier) {
+        const num = parseFloat(valueStr.replace(/[^0-9.]/g, ''));
+        const adjusted = num * multiplier;
+        
+        if (valueStr.includes('M')) {
+            return '$' + (adjusted / 1000000).toFixed(2) + 'M';
+        } else if (valueStr.includes('K')) {
+            return '$' + (adjusted / 1000).toFixed(1) + 'K';
+        }
+        return '$' + adjusted.toFixed(0);
+    }
+
+    function calculateOrders(ordersStr, multiplier) {
+        const num = parseInt(ordersStr.replace(/,/g, ''));
+        return Math.round(num * multiplier).toLocaleString();
+    }
+
+    function calculateAOV(aovStr, regionMult, categoryMult) {
+        const num = parseFloat(aovStr.replace(/[^0-9.]/g, ''));
+        // AOV doesn't change much with filters, slight variation
+        const adjusted = num * (0.9 + Math.random() * 0.2);
+        return '$' + adjusted.toFixed(2);
+    }
+
+    function animateValue(element, newValue) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            element.textContent = newValue;
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, 150);
+    }
+
+    function updateChangeIndicator(kpiElement, changeValue) {
+        const changeEl = kpiElement.nextElementSibling;
+        changeEl.textContent = changeValue;
+        changeEl.className = 'kpi-change ' + (changeValue.includes('↑') ? 'positive' : 'negative');
+    }
+
+    function updateChart(baseBars, multiplier) {
+        const bars = chartContainer.querySelectorAll('.chart-bar');
+        const values = ['$23K', '$34K', '$45K', '$52K', '$61K', '$78K', '$85K', '$92K', '$108K', '$124K'];
+        
+        bars.forEach((bar, index) => {
+            const height = Math.min(100, Math.max(15, baseBars[index % baseBars.length] * (0.7 + Math.random() * 0.6)));
+            bar.style.height = height + '%';
+            
+            // Update tooltip value
+            const valueIndex = Math.floor((height / 100) * (values.length - 1));
+            bar.setAttribute('data-value', values[valueIndex]);
+        });
+    }
+
+    // Event listeners
+    if (periodSelect) {
+        periodSelect.addEventListener('change', updateDashboard);
+    }
+    if (regionSelect) {
+        regionSelect.addEventListener('change', updateDashboard);
+    }
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateDashboard);
+    }
+
+    // Initial animation
+    setTimeout(() => {
+        const bars = document.querySelectorAll('.chart-bar');
+        bars.forEach((bar, index) => {
+            setTimeout(() => {
+                bar.style.transform = 'scaleY(1)';
+            }, index * 100);
+        });
+    }, 500);
+})();
 
 // =================================
 // FAQ Accordion
