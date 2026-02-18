@@ -272,53 +272,59 @@ numberInputs.forEach(input => {
 // =================================
 
 function initMobileMenu() {
-    const navContainer = document.querySelector('.nav-container');
-    const navLinks = document.querySelector('.nav-links');
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    const overlay = document.getElementById('navOverlay');
     
-    // Create hamburger button with 3 lines
-    const hamburger = document.createElement('button');
-    hamburger.classList.add('hamburger');
-    hamburger.setAttribute('aria-label', 'Toggle menu');
-    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    if (!hamburger || !navLinks) return;
     
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.classList.add('nav-overlay');
-    document.body.appendChild(overlay);
-    
-    // Add hamburger to nav
-    navContainer.appendChild(hamburger);
-    
-    // Toggle menu
     function toggleMenu() {
+        const isOpen = navLinks.classList.contains('active');
+        
         hamburger.classList.toggle('active');
         navLinks.classList.toggle('active');
         overlay.classList.toggle('active');
-        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        
+        // Prevent body scroll when menu is open
+        document.body.style.overflow = isOpen ? '' : 'hidden';
+    }
+    
+    function closeMenu() {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
     
     hamburger.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', closeMenu);
     
     // Close menu when clicking a link
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-            if (navLinks.classList.contains('active')) {
-                toggleMenu();
+            if (window.innerWidth < 768) {
+                closeMenu();
             }
         });
     });
     
-    // Close menu on escape key
+    // Close on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-            toggleMenu();
+            closeMenu();
+        }
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+            closeMenu();
         }
     });
 }
 
-// Initialize mobile menu
-initMobileMenu();
+// Initialize
+document.addEventListener('DOMContentLoaded', initMobileMenu);
 
 // =================================
 // Performance: Lazy Loading Images
