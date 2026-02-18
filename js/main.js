@@ -12,43 +12,43 @@ window.addEventListener('scroll', function() {
 });
 
 // =================================
-// Live Demo Dashboard Interactivity
+// Live Demo Dashboard Interactivity - FIXED
 // =================================
 
 (function() {
     // Demo data configurations
     const demoData = {
         '7': {
-            revenue: '$28.3K',
-            orders: '342',
-            aov: '$82.75',
+            revenue: 28300,  // Changed from string to number (in dollars)
+            orders: 342,
+            aov: 82.75,
             changeRevenue: '↑ 5.2%',
             changeOrders: '↑ 3.1%',
             changeAov: '↑ 1.8%',
             bars: [30, 45, 60, 55, 70, 85, 75]
         },
         '30': {
-            revenue: '$124.5K',
-            orders: '1,429',
-            aov: '$87.12',
+            revenue: 124500,
+            orders: 1429,
+            aov: 87.12,
             changeRevenue: '↑ 12.3%',
             changeOrders: '↑ 8.1%',
             changeAov: '↓ 2.4%',
             bars: [45, 65, 55, 80, 70, 90, 85]
         },
         '90': {
-            revenue: '$385.2K',
-            orders: '4,521',
-            aov: '$85.20',
+            revenue: 385200,
+            orders: 4521,
+            aov: 85.20,
             changeRevenue: '↑ 18.7%',
             changeOrders: '↑ 15.3%',
             changeAov: '↑ 4.2%',
             bars: [60, 55, 70, 75, 80, 85, 90]
         },
         '365': {
-            revenue: '$1.24M',
-            orders: '15,890',
-            aov: '$78.04',
+            revenue: 1240000,
+            orders: 15890,
+            aov: 78.04,
             changeRevenue: '↑ 32.1%',
             changeOrders: '↑ 28.9%',
             changeAov: '↑ 6.7%',
@@ -79,6 +79,16 @@ window.addEventListener('scroll', function() {
     const aovEl = document.getElementById('demoAov');
     const chartContainer = document.getElementById('demoChart');
 
+    // Format currency properly
+    function formatCurrency(value) {
+        if (value >= 1000000) {
+            return '$' + (value / 1000000).toFixed(2) + 'M';
+        } else if (value >= 1000) {
+            return '$' + (value / 1000).toFixed(1) + 'K';
+        }
+        return '$' + value.toFixed(0);
+    }
+
     function updateDashboard() {
         const period = periodSelect.value;
         const region = regionSelect.value;
@@ -87,16 +97,22 @@ window.addEventListener('scroll', function() {
         const baseData = demoData[period];
         const regionMult = regionMultipliers[region];
         const categoryMult = categoryMultipliers[category];
+        const totalMultiplier = regionMult * categoryMult;
         
-        // Calculate adjusted values
-        const adjustedRevenue = calculateValue(baseData.revenue, regionMult * categoryMult);
-        const adjustedOrders = calculateOrders(baseData.orders, regionMult * categoryMult);
-        const adjustedAov = calculateAOV(baseData.aov, regionMult, categoryMult);
+        // Calculate adjusted values - FIXED: Using proper number calculation
+        const adjustedRevenue = baseData.revenue * totalMultiplier;
+        const adjustedOrders = Math.round(baseData.orders * totalMultiplier);
+        const adjustedAov = adjustedRevenue / adjustedOrders;
+        
+        // Format values
+        const formattedRevenue = formatCurrency(adjustedRevenue);
+        const formattedOrders = adjustedOrders.toLocaleString();
+        const formattedAov = '$' + adjustedAov.toFixed(2);
         
         // Update KPIs with animation
-        animateValue(revenueEl, adjustedRevenue);
-        animateValue(ordersEl, adjustedOrders);
-        animateValue(aovEl, adjustedAov);
+        animateValue(revenueEl, formattedRevenue);
+        animateValue(ordersEl, formattedOrders);
+        animateValue(aovEl, formattedAov);
         
         // Update change indicators
         updateChangeIndicator(revenueEl, baseData.changeRevenue);
@@ -104,31 +120,7 @@ window.addEventListener('scroll', function() {
         updateChangeIndicator(aovEl, baseData.changeAov);
         
         // Update chart bars
-        updateChart(baseData.bars, regionMult * categoryMult);
-    }
-
-    function calculateValue(valueStr, multiplier) {
-        const num = parseFloat(valueStr.replace(/[^0-9.]/g, ''));
-        const adjusted = num * multiplier;
-        
-        if (valueStr.includes('M')) {
-            return '$' + (adjusted / 1000000).toFixed(2) + 'M';
-        } else if (valueStr.includes('K')) {
-            return '$' + (adjusted / 1000).toFixed(1) + 'K';
-        }
-        return '$' + adjusted.toFixed(0);
-    }
-
-    function calculateOrders(ordersStr, multiplier) {
-        const num = parseInt(ordersStr.replace(/,/g, ''));
-        return Math.round(num * multiplier).toLocaleString();
-    }
-
-    function calculateAOV(aovStr, regionMult, categoryMult) {
-        const num = parseFloat(aovStr.replace(/[^0-9.]/g, ''));
-        // AOV doesn't change much with filters, slight variation
-        const adjusted = num * (0.9 + Math.random() * 0.2);
-        return '$' + adjusted.toFixed(2);
+        updateChart(baseData.bars, totalMultiplier);
     }
 
     function animateValue(element, newValue) {
@@ -145,8 +137,10 @@ window.addEventListener('scroll', function() {
 
     function updateChangeIndicator(kpiElement, changeValue) {
         const changeEl = kpiElement.nextElementSibling;
-        changeEl.textContent = changeValue;
-        changeEl.className = 'kpi-change ' + (changeValue.includes('↑') ? 'positive' : 'negative');
+        if (changeEl && changeEl.classList.contains('kpi-change')) {
+            changeEl.textContent = changeValue;
+            changeEl.className = 'kpi-change ' + (changeValue.includes('↑') ? 'positive' : 'negative');
+        }
     }
 
     function updateChart(baseBars, multiplier) {
@@ -154,7 +148,8 @@ window.addEventListener('scroll', function() {
         const values = ['$23K', '$34K', '$45K', '$52K', '$61K', '$78K', '$85K', '$92K', '$108K', '$124K'];
         
         bars.forEach((bar, index) => {
-            const height = Math.min(100, Math.max(15, baseBars[index % baseBars.length] * (0.7 + Math.random() * 0.6)));
+            const adjustedHeight = baseBars[index % baseBars.length] * multiplier;
+            const height = Math.min(100, Math.max(15, adjustedHeight));
             bar.style.height = height + '%';
             
             // Update tooltip value
@@ -212,10 +207,17 @@ document.querySelectorAll('.faq-question').forEach(question => {
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
+        const href = this.getAttribute('href');
         
-        const target = document.querySelector(this.getAttribute('href'));
+        // Skip if it's just '#' or empty
+        if (!href || href === '#') {
+            e.preventDefault();
+            return;
+        }
+        
+        const target = document.querySelector(href);
         if (target) {
+            e.preventDefault();
             const offset = 80; // Height of fixed navbar
             const targetPosition = target.offsetTop - offset;
             
@@ -268,7 +270,7 @@ numberInputs.forEach(input => {
 });
 
 // =================================
-// Mobile Menu Toggle
+// Mobile Menu Toggle - IMPROVED
 // =================================
 
 function initMobileMenu() {
@@ -276,7 +278,7 @@ function initMobileMenu() {
     const navLinks = document.getElementById('navLinks');
     const overlay = document.getElementById('navOverlay');
     
-    if (!hamburger || !navLinks) return;
+    if (!hamburger || !navLinks || !overlay) return;
     
     function toggleMenu() {
         const isOpen = navLinks.classList.contains('active');
@@ -327,92 +329,12 @@ function initMobileMenu() {
 document.addEventListener('DOMContentLoaded', initMobileMenu);
 
 // =================================
-// Performance: Lazy Loading Images
-// =================================
-
-// Add lazy loading for images if you add them later
-if ('loading' in HTMLImageElement.prototype) {
-    const images = document.querySelectorAll('img[loading="lazy"]');
-    images.forEach(img => {
-        img.src = img.dataset.src;
-    });
-} else {
-    // Fallback for older browsers
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
-    document.body.appendChild(script);
-}
-
-// =================================
-// Track Button Clicks (Optional Analytics)
-// =================================
-
-function trackEvent(category, action, label) {
-    // You can integrate Google Analytics or other analytics here
-    console.log('Event:', category, action, label);
-    
-    // Example for Google Analytics:
-    // if (typeof gtag !== 'undefined') {
-    //     gtag('event', action, {
-    //         'event_category': category,
-    //         'event_label': label
-    //     });
-    // }
-}
-
-// Track CTA clicks
-document.querySelectorAll('.btn-primary').forEach(btn => {
-    btn.addEventListener('click', function() {
-        trackEvent('CTA', 'Click', this.textContent);
-    });
-});
-
-// Track project link clicks
-document.querySelectorAll('.project-link').forEach(link => {
-    link.addEventListener('click', function() {
-        trackEvent('Project', 'Click', this.textContent);
-    });
-});
-
-// =================================
-// Console Easter Egg
-// =================================
-
-console.log('%c👋 Halo Developer!', 'font-size: 20px; color: #2563eb; font-weight: bold;');
-console.log('%cTertarik dengan kode di balik website ini?', 'font-size: 14px; color: #64748b;');
-console.log('%cHubungi saya untuk diskusi collaboration! 🚀', 'font-size: 14px; color: #10b981;');
-
-// =================================
-// Page Load Performance
-// =================================
-
-window.addEventListener('load', function() {
-    // Hide loading spinner if you have one
-    const loader = document.querySelector('.page-loader');
-    if (loader) {
-        loader.style.display = 'none';
-    }
-    
-    // Log page load time
-    const loadTime = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
-    console.log('Page loaded in ' + loadTime + 'ms');
-});
-
-// =================================
-// Prevent Form Resubmission
-// =================================
-
-if (window.history.replaceState) {
-    window.history.replaceState(null, null, window.location.href);
-}
-
-// =================================
 // Add Active State to Navigation
 // =================================
 
 function setActiveNavLink() {
     const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a');
+    const navLinks = document.querySelectorAll('.nav-links a:not(.cta-nav)');
     
     window.addEventListener('scroll', () => {
         let current = '';
@@ -436,3 +358,12 @@ function setActiveNavLink() {
 }
 
 setActiveNavLink();
+
+// =================================
+// Page Load Performance
+// =================================
+
+window.addEventListener('load', function() {
+    console.log('%c👋 Portfolio Loaded!', 'font-size: 16px; color: #2563eb; font-weight: bold;');
+    console.log('%cBuilt with care and attention to detail ⚡', 'font-size: 12px; color: #64748b;');
+});
