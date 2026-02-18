@@ -268,52 +268,57 @@ numberInputs.forEach(input => {
 });
 
 // =================================
-// Mobile Menu Toggle (Optional)
+// Mobile Menu Toggle
 // =================================
 
-// Add hamburger menu for mobile if needed
-function createMobileMenu() {
+function initMobileMenu() {
     const navContainer = document.querySelector('.nav-container');
     const navLinks = document.querySelector('.nav-links');
     
-    // Create hamburger button
+    // Create hamburger button with 3 lines
     const hamburger = document.createElement('button');
     hamburger.classList.add('hamburger');
-    hamburger.innerHTML = '☰';
-    hamburger.style.cssText = `
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--primary);
-        cursor: pointer;
-    `;
+    hamburger.setAttribute('aria-label', 'Toggle menu');
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.classList.add('nav-overlay');
+    document.body.appendChild(overlay);
     
     // Add hamburger to nav
     navContainer.appendChild(hamburger);
     
-    // Toggle menu on mobile
-    hamburger.addEventListener('click', function() {
-        navLinks.classList.toggle('mobile-active');
-    });
-    
-    // Show hamburger on mobile
-    if (window.innerWidth <= 768) {
-        hamburger.style.display = 'block';
+    // Toggle menu
+    function toggleMenu() {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
     }
     
-    window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-            hamburger.style.display = 'block';
-        } else {
-            hamburger.style.display = 'none';
-            navLinks.classList.remove('mobile-active');
+    hamburger.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+    
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (navLinks.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
+    });
+    
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+            toggleMenu();
         }
     });
 }
 
 // Initialize mobile menu
-createMobileMenu();
+initMobileMenu();
 
 // =================================
 // Performance: Lazy Loading Images
